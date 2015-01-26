@@ -5,10 +5,13 @@ package com.srimurthy.instagramviewer;
  */
 public class InstagramPhoto {
     private String userName;
+    private String userProfilePictureURL;
     private String caption;
     private String imageURL;
     private int imageHeight;
     private int likesCount;
+    private String createdTimeString;
+    private String firstComment;
 
     public String getUserName() {
         return userName;
@@ -48,5 +51,29 @@ public class InstagramPhoto {
 
     public void setLikesCount(int likesCount) {
         this.likesCount = likesCount;
+    }
+
+    public String getUserProfilePictureURL() {
+        return userProfilePictureURL;
+    }
+
+    public void setUserProfilePictureURL(String userProfilePictureURL) {
+        this.userProfilePictureURL = userProfilePictureURL;
+    }
+
+    public void setCreatedTimeString(String createdTimeString) {
+        this.createdTimeString = createdTimeString;
+    }
+
+    public String getCreatedTimeString() {
+        return createdTimeString;
+    }
+
+    public String getFirstComment() {
+        return firstComment;
+    }
+
+    public void setFirstComment(String firstComment) {
+        this.firstComment = firstComment;
     }
 }

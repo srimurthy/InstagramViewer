@@ -2,7 +2,7 @@ package com.srimurthy.instagramviewer;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -15,6 +15,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,51 +56,107 @@ public class PhotosActivity extends ActionBarActivity {
                         JSONObject photoJSON = photosJSON.getJSONObject(i);
                         InstagramPhoto eachPhoto = new InstagramPhoto();
 
-                        JSONObject userJSONObject = photoJSON.getJSONObject("user");
-                        if (userJSONObject != null) {
-                            String username = userJSONObject.getString("username");
-                            if (username != null) {
-                                eachPhoto.setUserName(username);
-                            }
-                        }
-
-                        JSONObject captionJSONObject = photoJSON.getJSONObject("caption");
-                        if (captionJSONObject != null) {
-                            String caption = captionJSONObject.getString("text");
-                            if (caption != null) {
-                                eachPhoto.setCaption(caption);
-                            }
-                        }
-
-                        JSONObject imagesJSONObject = photoJSON.getJSONObject("images");
-                        if(imagesJSONObject != null) {
-                            JSONObject imageJSONObject = imagesJSONObject.getJSONObject("standard_resolution");
-                            if (imageJSONObject != null) {
-                                String url = imageJSONObject.getString("url");
-                                if (url != null) {
-                                    eachPhoto.setImageURL(url);
+                        try {
+                            JSONObject userJSONObject = (JSONObject) photoJSON.opt("user");
+                            if (userJSONObject != null) {
+                                String username = userJSONObject.getString("username");
+                                if (username != null) {
+                                    eachPhoto.setUserName(username);
                                 }
-                                Integer height = imageJSONObject.getInt("height");
-                                if (height != null) {
-                                    eachPhoto.setImageHeight(height);
+                                if (userJSONObject.isNull("profile_picture") == false) {
+                                    String url = userJSONObject.getString("profile_picture");
+                                    if (url != null && url.isEmpty() == false) {
+                                        try {
+                                            String encodedUrl = URLEncoder.encode(url, "UTF-8");
+                                            eachPhoto.setUserProfilePictureURL(encodedUrl);
+                                        } catch (UnsupportedEncodingException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                    }
                                 }
                             }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
 
-//                        JSONObject likesJSONObject = photoJSON.getJSONObject("likes");
-//                        if (likesJSONObject != null) {
-//                            Integer count = likesJSONObject.getInt("count");
-//                            if (count != null) {
-//                                eachPhoto.setLikesCount(count);
-//                            }
-//                        }
+                        try {
+                            String creationDateTimeStr = photoJSON.get("created_time").toString();
+                            if (creationDateTimeStr != null) {
+                                String createdTimestamp = DateUtils.getRelativeTimeSpanString(new Long(creationDateTimeStr.toString()) * 1000).toString();
+                                if (createdTimestamp != null) {
+                                    eachPhoto.setCreatedTimeString(createdTimestamp);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        try {
+                            JSONObject captionJSONObject = photoJSON.getJSONObject("caption");
+                            if (captionJSONObject != null) {
+                                String caption = captionJSONObject.getString("text");
+                                if (caption != null) {
+                                    eachPhoto.setCaption(caption);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        try {
+                            JSONObject imagesJSONObject = photoJSON.getJSONObject("images");
+                            if (imagesJSONObject != null) {
+                                JSONObject imageJSONObject = imagesJSONObject.getJSONObject("standard_resolution");
+                                if (imageJSONObject != null) {
+                                    String url = imageJSONObject.getString("url");
+                                    if (url != null) {
+                                        eachPhoto.setImageURL(url);
+                                    }
+                                    Integer height = imageJSONObject.getInt("height");
+                                    if (height != null) {
+                                        eachPhoto.setImageHeight(height);
+                                    }
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+
+                            JSONObject likesJSONObject = photoJSON.getJSONObject("likes");
+                            if (likesJSONObject != null) {
+                                Integer count = likesJSONObject.getInt("count");
+                                if (count != null) {
+                                    eachPhoto.setLikesCount(count);
+                                }
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        try {
+
+                            JSONObject commentsJSONObject = photoJSON.getJSONObject("comments");
+                            if (commentsJSONObject != null) {
+                                JSONArray commentsJSONArray = commentsJSONObject.getJSONArray("data");
+                                if (commentsJSONArray.length() > 0) {
+                                    eachPhoto.setFirstComment(((JSONObject)commentsJSONArray.get(0)).getString("text"));
+                                }
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
                         photos.add(eachPhoto);
                     }
                     aPhotos.notifyDataSetChanged();
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
             }
         });
     }

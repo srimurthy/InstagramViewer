@@ -28,12 +28,32 @@ public class InstagramPhotosAdapter extends ArrayAdapter<InstagramPhoto> {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_photo, parent, false);
         }
+
+        TextView tvUsername = (TextView) convertView.findViewById(R.id.tvUsername);
+        tvUsername.setText(photo.getUserName());
+
+        TextView tvCreationTimestamp = (TextView) convertView.findViewById(R.id.tvCreationTimestamp);
+        tvCreationTimestamp.setText(photo.getCreatedTimeString());
+
+        ImageView ivUser = (ImageView) convertView.findViewById(R.id.ivUser);
+        ivUser.getLayoutParams().height = 50;
+        ivUser.setImageResource(0);
+        Picasso.with(getContext()).load(photo.getUserProfilePictureURL()).into(ivUser);
+
         ImageView ivPhoto = (ImageView) convertView.findViewById(R.id.ivPhoto);
-        TextView tvCaption = (TextView) convertView.findViewById(R.id.tvCaption);
-        tvCaption.setText(photo.getCaption());
         ivPhoto.getLayoutParams().height = photo.getImageHeight();
         ivPhoto.setImageResource(0);
-        Picasso.with(getContext()).load(photo.getImageURL()).into(ivPhoto);
+        Picasso.with(getContext()).load(photo.getImageURL()).fit().into(ivPhoto);
+
+        //TextView tvCaption = (TextView) convertView.findViewById(R.id.tvCaption);
+        //tvCaption.setText(photo.getCaption());
+
+        TextView tvLikesCount = (TextView) convertView.findViewById(R.id.tvLikesCount);
+        tvLikesCount.setText(photo.getLikesCount() + " Likes");
+
+        TextView tvFirstComment = (TextView) convertView.findViewById(R.id.tvFirstComment);
+        tvFirstComment.setText(photo.getFirstComment());
+
         return convertView;
     }
 }
